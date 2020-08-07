@@ -166,7 +166,7 @@ class JvmIrLinker(
                 declareJavaFieldStub(symbol)
             } else {
                 stubGenerator.generateMemberStub(symbol.descriptor)
-                if (symbol.descriptor.annotations.hasAnnotation(FqName("kotlin.CompileTimeCalculation"))) {
+                if (symbol.isCompileTime()) {
                     deserializerForCompileTime?.declare(symbol)
                 }
             }
@@ -175,5 +175,18 @@ class JvmIrLinker(
         override val moduleFragment: IrModuleFragment = IrModuleFragmentImpl(moduleDescriptor, builtIns, emptyList())
         override val moduleDependencies: Collection<IrModuleDeserializer> = dependencies
 
+        private fun IrSymbol.isCompileTime(): Boolean {
+            if (!this.isPublicApi) return false
+            if (this.descriptor.annotations.hasAnnotation(FqName("kotlin.CompileTimeCalculation"))) return true
+
+            val packageStr = this.signature?.packageFqName()?.asString() ?: return false
+            val name = this.descriptor.name.asString()
+            if (!packageStr.startsWith("kotlin")) return false
+            return !packageStr.startsWith("kotlin.reflect") &&
+                    !packageStr.startsWith("kotlin.test") &&
+                    !packageStr.startsWith("kotlin.io") &&
+                    !packageStr.startsWith("kotlin.jvm") &&
+                    !(packageStr == "kotlin" && name == "assert")
+        }
     }
 }
