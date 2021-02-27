@@ -37,7 +37,6 @@ import org.jetbrains.kotlin.analyzer.ResolverForProject.Companion.resolverForSdk
 import org.jetbrains.kotlin.analyzer.ResolverForProject.Companion.resolverForSpecialInfoName
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
-import org.jetbrains.kotlin.caches.resolve.KotlinCacheService.CapabilitiesProvider
 import org.jetbrains.kotlin.caches.resolve.PlatformAnalysisSettings
 import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.context.GlobalContext
@@ -472,12 +471,6 @@ class KotlinCacheServiceImpl(val project: Project) : KotlinCacheService {
 
     override fun getResolutionFacadeByModuleInfo(moduleInfo: ModuleInfo, platform: TargetPlatform): ResolutionFacade? =
         (moduleInfo as? IdeaModuleInfo)?.let { getResolutionFacadeByModuleInfo(it, platform) }
-
-    override fun getResolutionFacadeByModuleInfo(moduleInfo: ModuleInfo, provider: CapabilitiesProvider): ResolutionFacade? {
-        val ideaModuleInfo = moduleInfo as? IdeaModuleInfo ?: return null
-        val analysisSettings = provider.getCapability(IdeaResolverForProject.PLATFORM_ANALYSIS_SETTINGS) ?: return null
-        return getResolutionFacadeByModuleInfoAndSettings(ideaModuleInfo, analysisSettings)
-    }
 
     override fun getResolutionFacadeByModuleInfo(moduleInfo: ModuleInfo, settings: PlatformAnalysisSettings): ResolutionFacade? {
         val ideaModuleInfo = moduleInfo as? IdeaModuleInfo ?: return null
