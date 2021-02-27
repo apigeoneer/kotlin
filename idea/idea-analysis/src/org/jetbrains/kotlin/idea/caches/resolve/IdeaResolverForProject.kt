@@ -42,7 +42,6 @@ class IdeaResolverForProject(
     private val syntheticFilesByModule: Map<IdeaModuleInfo, Collection<KtFile>>,
     delegateResolver: ResolverForProject<IdeaModuleInfo>,
     fallbackModificationTracker: ModificationTracker? = null,
-    // TODO(dsavvinov): this is needed only for non-composite analysis, extract separate resolver implementation instead
     private val settings: PlatformAnalysisSettings
 ) : AbstractResolverForProject<IdeaModuleInfo>(
     debugName,
