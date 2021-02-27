@@ -151,7 +151,7 @@ class JvmIrCodegenFactory(private val phaseConfig: PhaseConfig) : CodegenFactory
 
         stubGenerator.unboundSymbolGeneration = true
 
-        if (state.languageVersionSettings.supportsFeature(LanguageFeature.CompileTimeCalculations)) {
+        state.configuration.get(JVMConfigurationKeys.KLIB_PATH_FOR_COMPILE_TIME)?.let {
             state.configuration.put(CommonConfigurationKeys.IR_BODY_MAP, irLinker.deserializerForCompileTime!!.getBodies() as Map<*, *>)
         }
 

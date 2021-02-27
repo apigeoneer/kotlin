@@ -180,13 +180,15 @@ class JvmIrLinker(
             if (this.descriptor.annotations.hasAnnotation(FqName("kotlin.CompileTimeCalculation"))) return true
 
             val packageStr = this.signature?.packageFqName()?.asString() ?: return false
-            val name = this.descriptor.name.asString()
+            val declarationName = (this.signature as? IdSignature.PublicSignature)?.declarationFqName
+            //val name = this.descriptor.name.asString()
             if (!packageStr.startsWith("kotlin")) return false
-            return !packageStr.startsWith("kotlin.reflect") &&
-                    !packageStr.startsWith("kotlin.test") &&
-                    !packageStr.startsWith("kotlin.io") &&
+            return !packageStr.startsWith("kotlin.io") &&
                     !packageStr.startsWith("kotlin.jvm") &&
-                    !(packageStr == "kotlin" && name == "assert")
+                    !packageStr.startsWith("kotlin.reflect.jvm") &&
+                    !packageStr.startsWith("kotlin.reflect.full") &&
+                    !(packageStr.startsWith("kotlin") && declarationName == "Cloneable") //&&
+                    //!(packageStr == "kotlin" && name == "assert")
         }
     }
 }

@@ -94,13 +94,14 @@ class IrInterpreterBoxHandler(testServices: TestServices) : AbstractIrHandler(te
     }
 
     override fun processAfterAllModules(someAssertionWasFailed: Boolean) {
+        if (someAssertionWasFailed) return
         val modules = testServices.moduleStructure.modules
 
         Assumptions.assumeFalse(modules.flatMap { it.files }.any { it.name.endsWith(".java") }) { "Can't interpret java files" }
         Assumptions.assumeFalse(modules.flatMap { it.files }.singleOrNull()?.name == "sync.kt") { "Ignore `await` method call interpretation" }
 
         Assumptions.assumeFalse(AdditionalFilesDirectives.WITH_COROUTINES in testServices.moduleStructure.allDirectives) { "Ignore coroutines" }
-        Assumptions.assumeFalse(JvmEnvironmentConfigurationDirectives.WITH_REFLECT in testServices.moduleStructure.allDirectives) { "Ignore jvm reflection" }
+//        Assumptions.assumeFalse(JvmEnvironmentConfigurationDirectives.WITH_REFLECT in testServices.moduleStructure.allDirectives) { "Ignore jvm reflection" }
 
         val configuration = testServices.compilerConfigurationProvider.getCompilerConfiguration(modules.last())
         val boxFunction = irFiles
