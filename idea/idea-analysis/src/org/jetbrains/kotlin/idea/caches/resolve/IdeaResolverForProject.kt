@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.platform.isCommon
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.resolve.RESOLUTION_ANCHOR_PROVIDER_CAPABILITY
 import org.jetbrains.kotlin.resolve.ResolutionAnchorProvider
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
 
@@ -49,13 +50,14 @@ class IdeaResolverForProject(
     modules,
     fallbackModificationTracker,
     delegateResolver,
-    ServiceManager.getService(projectContext.project, IdePackageOracleFactory::class.java),
-    ServiceManager.getService(projectContext.project, ResolutionAnchorProvider::class.java)
+    ServiceManager.getService(projectContext.project, IdePackageOracleFactory::class.java)
 ) {
 
     companion object {
         val PLATFORM_ANALYSIS_SETTINGS = ModuleCapability<PlatformAnalysisSettings>("PlatformAnalysisSettings")
     }
+
+    private val resolutionAnchorProvider = ServiceManager.getService(projectContext.project, ResolutionAnchorProvider::class.java)
 
     private val constantSdkDependencyIfAny: SdkInfo? =
         if (settings is PlatformAnalysisSettingsImpl) settings.sdk?.let { SdkInfo(projectContext.project, it) } else null
@@ -64,7 +66,9 @@ class IdeaResolverForProject(
         (delegateResolver as? IdeaResolverForProject)?.builtInsCache ?: BuiltInsCache(projectContext, this)
 
     override fun getAdditionalCapabilities(): Map<ModuleCapability<*>, Any?> {
-        return mapOf(PLATFORM_ANALYSIS_SETTINGS to settings)
+        return super.getAdditionalCapabilities() +
+                (PLATFORM_ANALYSIS_SETTINGS to settings) +
+                (RESOLUTION_ANCHOR_PROVIDER_CAPABILITY to resolutionAnchorProvider)
     }
 
     override fun sdkDependency(module: IdeaModuleInfo): SdkInfo? {
